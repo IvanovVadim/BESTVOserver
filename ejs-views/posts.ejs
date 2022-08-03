@@ -5,18 +5,22 @@
     <%- include('./partials/nav.ejs') %>
 <h1>Posts:</h1>
 <ul>
+    <% if (posts.length) { %>
+        <% posts.forEach(({ id, title, date, text, author}) => { %>
     <li>
 <article>
     <h2>
-        <a href="/post/1">Post title</a>
+        <a href="/posts/<%= id %>"><%= title %></a>
     </h2>
-    <p>My 1st post</p>
+    <p><%= text %></p>
     <div class="info">
-        <span>28.07.2022</span>
-        <span>Vadim</span>
+        <span><%= date %></span>
+        <span><%= author %></span>
     </div>
 </article>
 </li>
+<% }) %>
+<% } %>
 </ul>
 </body>
 </html>
