@@ -1,12 +1,20 @@
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
+const Post = require('./models/post');
 
 const app = express();
 
 app.set('view engine', 'ejs');
 
 const PORT = 3000;
+const db = 'mongodb+srv://qas0le:efes1104@cluster0.4jriq.mongodb.net/VOserver?retryWrites=true&w=majority';
+
+mongoose
+.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+.then((res) => console.log('Connected to Base'))
+.catch((error) => console.log(error));
 
 const createPath = (page) => path.resolve(__dirname, 'ejs-views', `${page}.ejs`);
 
@@ -41,18 +49,18 @@ app.get('/contacts', (req, res) =>{
 
 app.post('/add-post', (req, res) => {
     const { title, author, text } = req.body;
-    const post = {
-        id: new Date(),
-        date: (new Date()).toLocaleDateString(),
-        title,
-        author,
-        text,
-    };
-    res.render(createPath('post'), { post, title });
+    const post = new Post({ title, author, text });
+    post
+    .save()
+    .then((result) => res.send(result))
+    .catch ((error) => {
+        console.log(error);
+        res.render(createPath('error'), { title: 'Error' });
+    })
 });
 
 app.get('/add-post', (req, res) =>{
-    const title = 'add-post';
+    const title = 'Add Post';
     res.render(createPath('add-post'), { title });
 });
 
@@ -63,7 +71,7 @@ app.get('/posts/:id', (req, res) =>{
         text: 'My 1st post',
         title: 'Post title',
         date: '28.07.2022',
-        auhhor: 'Vadim',
+        author: 'Vadim',
     };
     res.render(createPath('post'), { title, post });
 });
@@ -76,14 +84,15 @@ app.get('/posts', (req, res) =>{
         text: 'My 1st post',
         title: 'Post title',
         date: '28.07.2022',
-        auhhor: 'Vadim', 
+        author: 'Vadim', 
     }       
-    ]
+    ];
     res.render(createPath('posts'), { title, posts });
 });
 
+// Редирект
 app.get('/about-us', (req, res) =>{
-    res.redirect('/contacts');
+    res.redirect('/contacts')
 });
 
 app.use((req, res) =>{
